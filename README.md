@@ -1,5 +1,4 @@
 # Automotive-Cybersecurity-Governance-Compliance-Platform
-# Meridian — Automotive Cybersecurity Governance Platform
 
 An enterprise-inspired cybersecurity governance platform for modern automotive software ecosystems.
 
