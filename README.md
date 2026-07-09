@@ -213,30 +213,6 @@ Meridian/
 
 ---
 
-## Running the Prototype
-
-Clone the repository
-
-```bash
-git clone https://github.com/yourusername/meridian.git
-cd meridian
-```
-
-Serve locally
-
-```bash
-python -m http.server 8000
-```
-
-or simply open
-
-```
-index.html
-```
-
-in your browser.
-
----
 
 ## Roadmap
 
