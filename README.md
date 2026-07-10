@@ -1,10 +1,12 @@
-# Automotive-Cybersecurity-Governance-Compliance-Platform
+# Automotive Cybersecurity Governance Compliance Platform
 
 An enterprise-inspired cybersecurity governance platform for modern automotive software ecosystems.
 
 Meridian is a full-stack project that demonstrates how OEMs can manage cybersecurity compliance, supplier risk, firmware provenance, software updates, and vulnerability traceability throughout a vehicle's lifecycle. The platform is designed around industry standards such as **ISO/SAE 21434**, **UN R155**, and **UN R156**, providing a centralized view of cybersecurity evidence and compliance readiness.
 
 > **Status:** Prototype with production-oriented architecture. Current release showcases an interactive governance dashboard while the backend services are being implemented.
+
+Demo Link - https://automotive-cybersecurity-governance-c.netlify.app/
 
 ---
 
