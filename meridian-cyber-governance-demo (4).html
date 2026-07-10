@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meridian &mdash; Automotive Cybersecurity Governance Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0B1220;
+  --panel:#111B2E;
+  --panel-2:#16223A;
+  --border:#233252;
+  --border-soft:#1B2A45;
+  --text:#E7ECF3;
+  --muted:#8CA0BE;
+  --muted-2:#5E7092;
+  --cyan:#31D8C4;
+  --cyan-dim:#1B4A47;
+  --amber:#EAAE3F;
+  --amber-dim:#4A3A18;
+  --red:#EA6363;
+  --red-dim:#4A2020;
+  --green:#4FD290;
+  --green-dim:#1B4433;
+  --blue:#5B92F0;
+  --radius:6px;
+  --mono:'JetBrains Mono', monospace;
+  --sans:'Inter', -apple-system, sans-serif;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{
+  font-family:var(--sans);
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  font-size:14px;
+  line-height:1.5;
+}
+.app{display:flex; min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{
+  width:236px; flex-shrink:0; background:var(--panel);
+  border-right:1px solid var(--border-soft);
+  display:flex; flex-direction:column;
+  position:sticky; top:0; height:100vh;
+}
+.brand{
+  padding:20px 18px 16px; border-bottom:1px solid var(--border-soft);
+}
+.brand-name{font-family:var(--mono); font-weight:700; font-size:15px; letter-spacing:0.02em; color:var(--text);}
+.brand-sub{font-size:11px; color:var(--muted-2); margin-top:3px; font-family:var(--mono); letter-spacing:0.04em; text-transform:uppercase;}
+.nav{flex:1; padding:14px 10px; position:relative;}
+.nav::before{
+  content:''; position:absolute; left:24px; top:14px; bottom:14px; width:1px;
+  background:linear-gradient(var(--border), var(--cyan-dim), var(--border));
+  opacity:0.5;
+}
+.nav-item{
+  display:flex; align-items:center; gap:10px; padding:9px 10px 9px 8px;
+  border-radius:var(--radius); cursor:pointer; color:var(--muted);
+  font-size:13px; position:relative; z-index:1; margin-bottom:2px;
+  border:1px solid transparent;
+}
+.nav-item:hover{background:var(--panel-2); color:var(--text);}
+.nav-item.active{background:var(--panel-2); color:var(--cyan); border-color:var(--border);}
+.nav-dot{width:7px; height:7px; border-radius:50%; background:var(--muted-2); flex-shrink:0; margin-left:9px;}
+.nav-item.active .nav-dot{background:var(--cyan); box-shadow:0 0 0 3px var(--cyan-dim);}
+.nav-label{font-weight:500; letter-spacing:0.01em;}
+.nav-count{margin-left:auto; font-family:var(--mono); font-size:10.5px; color:var(--muted-2); background:var(--bg); padding:1px 6px; border-radius:10px; border:1px solid var(--border-soft);}
+.nav-item.active .nav-count{color:var(--cyan); border-color:var(--cyan-dim);}
+.sidebar-foot{padding:14px 18px; border-top:1px solid var(--border-soft); font-size:11px; color:var(--muted-2); font-family:var(--mono);}
+
+/* MAIN */
+.main{flex:1; min-width:0; display:flex; flex-direction:column;}
+.topbar{
+  padding:16px 32px; border-bottom:1px solid var(--border-soft);
+  display:flex; align-items:center; justify-content:space-between;
+  background:linear-gradient(180deg, rgba(49,216,196,0.03), transparent);
+  position:relative; z-index:20;
+}
+.topbar-title{font-family:var(--mono); font-size:17px; font-weight:600;}
+.topbar-crumb{font-size:12px; color:var(--muted-2); margin-top:3px;}
+.topbar-right{display:flex; align-items:center; gap:16px;}
+.topbar-status{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); white-space:nowrap;}
+.pulse{width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 0 3px var(--green-dim);}
+.content{padding:26px 32px 60px; overflow-y:auto;}
+
+/* Global search */
+.gsearch-wrap{position:relative;}
+.gsearch-input{
+  width:320px; background:var(--panel-2); border:1px solid var(--border); color:var(--text);
+  padding:8px 12px; border-radius:var(--radius); font-size:12.5px; font-family:var(--sans);
+}
+.gsearch-input:focus{outline:none; border-color:var(--cyan);}
+.gsearch-results{
+  position:absolute; top:calc(100% + 6px); left:0; width:420px; max-height:400px; overflow-y:auto;
+  background:var(--panel); border:1px solid var(--border); border-radius:8px; display:none;
+  box-shadow:0 12px 32px rgba(0,0,0,0.4); z-index:30;
+}
+.gsearch-results.open{display:block;}
+.gsearch-item{padding:10px 13px; border-bottom:1px solid var(--border-soft); cursor:pointer; display:flex; align-items:center; gap:10px;}
+.gsearch-item:last-child{border-bottom:none;}
+.gsearch-item:hover{background:var(--panel-2);}
+.gsearch-type{font-family:var(--mono); font-size:9.5px; text-transform:uppercase; padding:2px 6px; border-radius:4px; background:var(--panel-2); color:var(--muted); border:1px solid var(--border); flex-shrink:0; width:64px; text-align:center;}
+.gsearch-text{flex:1; min-width:0;}
+.gsearch-title{font-size:12.5px;}
+.gsearch-sub{font-size:11px; color:var(--muted-2); font-family:var(--mono); margin-top:1px;}
+.gsearch-empty{padding:16px 13px; font-size:12px; color:var(--muted-2);}
+
+/* Deltas */
+.delta{font-family:var(--mono); font-size:11.5px; font-weight:600; margin-left:6px;}
+.delta.up-good{color:var(--green);} .delta.up-bad{color:var(--red);}
+.delta.down-good{color:var(--green);} .delta.down-bad{color:var(--red);}
+
+/* Toasts */
+.toast-stack{position:fixed; bottom:20px; right:20px; z-index:100; display:flex; flex-direction:column; gap:8px;}
+.toast{
+  background:var(--panel); border:1px solid var(--border); border-left:3px solid var(--cyan);
+  border-radius:6px; padding:10px 14px; font-size:12.5px; min-width:240px; max-width:340px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.4); animation:toastin .25s ease;
+}
+.toast.warn{border-left-color:var(--amber);}
+.toast.crit{border-left-color:var(--red);}
+@keyframes toastin{from{opacity:0; transform:translateX(20px);} to{opacity:1; transform:translateX(0);}}
+
+
+/* GENERIC */
+.grid{display:grid; gap:14px;}
+.g4{grid-template-columns:repeat(4,1fr);}
+.g3{grid-template-columns:repeat(3,1fr);}
+.g2{grid-template-columns:repeat(2,1fr);}
+.card{
+  background:var(--panel); border:1px solid var(--border-soft); border-radius:10px;
+  padding:16px 18px;
+}
+.metric-label{font-size:11.5px; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; font-family:var(--mono);}
+.metric-value{font-family:var(--mono); font-size:26px; font-weight:700; margin-top:8px;}
+.metric-sub{font-size:12px; color:var(--muted-2); margin-top:4px;}
+.metric-value.cyan{color:var(--cyan);}
+.metric-value.amber{color:var(--amber);}
+.metric-value.red{color:var(--red);}
+.metric-value.green{color:var(--green);}
+
+h2.section-title{font-size:14px; font-weight:600; margin:28px 0 12px; color:var(--text); display:flex; align-items:center; gap:8px;}
+h2.section-title:first-child{margin-top:0;}
+h2.section-title::before{content:''; width:3px; height:14px; background:var(--cyan); display:inline-block; border-radius:2px;}
+
+table{width:100%; border-collapse:collapse; font-size:12.5px;}
+thead th{
+  text-align:left; padding:8px 12px; color:var(--muted); font-weight:500;
+  border-bottom:1px solid var(--border); font-size:11px; text-transform:uppercase; letter-spacing:0.04em;
+  font-family:var(--mono);
+}
+tbody td{padding:10px 12px; border-bottom:1px solid var(--border-soft); vertical-align:middle;}
+tbody tr:hover{background:var(--panel-2);}
+.mono{font-family:var(--mono); font-size:12px; color:var(--muted);}
+.table-wrap{background:var(--panel); border:1px solid var(--border-soft); border-radius:10px; overflow:hidden;}
+
+.badge{display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:600; font-family:var(--mono); white-space:nowrap;}
+.badge.b-red{background:var(--red-dim); color:var(--red);}
+.badge.b-amber{background:var(--amber-dim); color:var(--amber);}
+.badge.b-green{background:var(--green-dim); color:var(--green);}
+.badge.b-cyan{background:var(--cyan-dim); color:var(--cyan);}
+.badge.b-gray{background:var(--panel-2); color:var(--muted); border:1px solid var(--border);}
+.badge-dot{width:6px; height:6px; border-radius:50%; background:currentColor;}
+
+.bar-track{height:6px; background:var(--panel-2); border-radius:4px; overflow:hidden; width:100%; border:1px solid var(--border-soft);}
+.bar-fill{height:100%; border-radius:4px;}
+
+.tab-panel{display:none;}
+.tab-panel.active{display:block; animation:fadein .25s ease;}
+@keyframes fadein{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+
+.row-flex{display:flex; align-items:center; gap:8px;}
+.desc{color:var(--muted); font-size:12.5px; margin-bottom:16px; max-width:760px;}
+
+/* Traceability chain */
+.chain-wrap{background:var(--panel); border:1px solid var(--border-soft); border-radius:10px; padding:26px 22px;}
+.chain{display:flex; align-items:stretch; gap:0; overflow-x:auto; padding-bottom:6px;}
+.chain-node{
+  min-width:150px; background:var(--panel-2); border:1px solid var(--border); border-radius:8px;
+  padding:12px 13px; position:relative; flex-shrink:0; cursor:pointer;
+}
+.chain-node:hover{border-color:var(--cyan);}
+.chain-node.selected{border-color:var(--cyan); background:var(--cyan-dim);}
+.chain-node .k{font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted-2); font-family:var(--mono);}
+.chain-node .v{font-size:12.5px; font-weight:600; margin-top:4px;}
+.chain-node .m{font-size:11px; color:var(--muted); margin-top:3px; font-family:var(--mono);}
+.chain-arrow{
+  display:flex; align-items:center; justify-content:center; width:34px; flex-shrink:0; color:var(--muted-2);
+  font-family:var(--mono); font-size:14px;
+}
+.chain-detail{margin-top:18px; padding-top:16px; border-top:1px solid var(--border-soft); font-size:12.5px; color:var(--muted);}
+
+/* Compliance */
+.clause-row{padding:14px 0; border-bottom:1px solid var(--border-soft);}
+.clause-row:last-child{border-bottom:none;}
+.clause-top{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;}
+.clause-name{font-size:13px; font-weight:500;}
+.clause-id{font-family:var(--mono); font-size:11px; color:var(--muted-2);}
+.clause-pct{font-family:var(--mono); font-size:12.5px; font-weight:600;}
+
+/* Quantum module */
+.qm-banner{
+  background:linear-gradient(135deg, rgba(49,216,196,0.08), rgba(49,216,196,0.02));
+  border:1px solid var(--cyan-dim); border-radius:10px; padding:14px 18px; margin-bottom:18px;
+  font-size:12.5px; color:var(--muted); display:flex; gap:10px; align-items:flex-start;
+}
+.qm-banner .tag{background:var(--cyan-dim); color:var(--cyan); font-family:var(--mono); font-size:10px; padding:2px 7px; border-radius:4px; flex-shrink:0; margin-top:1px;}
+
+/* buttons/inputs */
+input[type=text]{
+  background:var(--panel-2); border:1px solid var(--border); color:var(--text);
+  padding:8px 12px; border-radius:var(--radius); font-size:12.5px; font-family:var(--sans);
+  width:240px;
+}
+input[type=text]:focus{outline:1px solid var(--cyan); border-color:var(--cyan);}
+.toolbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;}
+.filter-chips{display:flex; gap:6px;}
+.chip{padding:5px 11px; border-radius:20px; font-size:11.5px; border:1px solid var(--border); color:var(--muted); cursor:pointer; font-family:var(--mono);}
+.chip.active{background:var(--cyan-dim); color:var(--cyan); border-color:var(--cyan-dim);}
+
+::-webkit-scrollbar{height:8px; width:8px;}
+::-webkit-scrollbar-thumb{background:var(--border); border-radius:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+
+.evidence-item{display:flex; align-items:center; gap:12px; padding:12px 14px; border-bottom:1px solid var(--border-soft);}
+.evidence-item:last-child{border-bottom:none;}
+.evidence-icon{width:32px; height:32px; border-radius:6px; background:var(--panel-2); display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-size:10px; color:var(--cyan); flex-shrink:0; border:1px solid var(--border);}
+.evidence-meta{flex:1; min-width:0;}
+.evidence-name{font-size:12.5px; font-weight:500;}
+.evidence-sub{font-size:11px; color:var(--muted-2); font-family:var(--mono); margin-top:2px;}
+
+.upload-zone{
+  border:1.5px dashed var(--border); border-radius:10px; padding:26px; text-align:center;
+  margin-bottom:16px; cursor:pointer; transition:all .15s ease;
+}
+.upload-zone:hover, .upload-zone.drag{border-color:var(--cyan); background:rgba(49,216,196,0.04);}
+.upload-icon{font-family:var(--mono); font-size:18px; color:var(--cyan); margin-bottom:6px;}
+.upload-text{font-size:12.5px;}
+.upload-link{color:var(--cyan); text-decoration:underline;}
+.upload-sub{font-size:11px; color:var(--muted-2); margin-top:6px;}
+
+/* Activity / notifications */
+.notif-item{display:flex; gap:12px; padding:12px 14px; border-bottom:1px solid var(--border-soft); align-items:flex-start;}
+.notif-item:last-child{border-bottom:none;}
+.notif-dot{width:8px; height:8px; border-radius:50%; margin-top:5px; flex-shrink:0;}
+.notif-body{flex:1; min-width:0; font-size:12.5px;}
+.notif-time{font-size:11px; color:var(--muted-2); font-family:var(--mono); white-space:nowrap;}
+.log-row{display:flex; gap:14px; padding:9px 14px; border-bottom:1px solid var(--border-soft); font-size:12px; align-items:center;}
+.log-row:last-child{border-bottom:none;}
+.log-time{font-family:var(--mono); color:var(--muted-2); width:130px; flex-shrink:0;}
+.log-actor{color:var(--cyan); font-weight:500; width:150px; flex-shrink:0;}
+.log-text{color:var(--muted); flex:1;}
+
+/* Knowledge graph */
+.graph-wrap{background:var(--panel); border:1px solid var(--border-soft); border-radius:10px; padding:18px; position:relative;}
+.graph-legend{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:14px; font-size:11.5px; color:var(--muted); font-family:var(--mono);}
+.legend-item{display:flex; align-items:center; gap:6px;}
+.legend-dot{width:9px; height:9px; border-radius:50%; flex-shrink:0;}
+.gnode{cursor:pointer;}
+.gnode circle{stroke-width:1.5; transition:all .15s ease;}
+.gnode:hover circle{stroke-width:2.5;}
+.gnode text{font-family:var(--sans); pointer-events:none;}
+.gnode .glabel{font-size:9.5px; font-weight:600; fill:var(--text);}
+.gnode .gsub{font-size:8px; fill:var(--muted-2);}
+.gedge{stroke:var(--border); stroke-width:1.3; fill:none; opacity:0.55;}
+.gedge.hi{stroke:var(--cyan); stroke-width:2; opacity:1;}
+.graph-detail{margin-top:16px; padding-top:14px; border-top:1px solid var(--border-soft); font-size:12.5px; color:var(--muted); min-height:20px;}
+
+/* AI assistant */
+.assist-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start;}
+textarea.assist-input{
+  width:100%; min-height:260px; background:var(--panel-2); border:1px solid var(--border);
+  color:var(--text); padding:12px 14px; border-radius:8px; font-size:12.5px; font-family:var(--mono);
+  resize:vertical; line-height:1.5;
+}
+textarea.assist-input:focus{outline:1px solid var(--cyan); border-color:var(--cyan);}
+.btn{
+  background:var(--cyan-dim); color:var(--cyan); border:1px solid var(--cyan-dim);
+  padding:9px 16px; border-radius:6px; font-size:12.5px; font-weight:600; font-family:var(--sans);
+  cursor:pointer; display:inline-flex; align-items:center; gap:8px;
+}
+.btn:hover{background:var(--cyan); color:#04211d;}
+.btn:disabled{opacity:0.5; cursor:not-allowed;}
+.btn.secondary{background:var(--panel-2); color:var(--muted); border-color:var(--border);}
+.btn.secondary:hover{background:var(--panel-2); color:var(--text); border-color:var(--cyan);}
+.assist-toolbar{display:flex; gap:10px; margin-top:12px;}
+.assist-result{margin-top:0;}
+.assist-finding{background:var(--panel-2); border:1px solid var(--border-soft); border-radius:8px; padding:12px 14px; margin-bottom:10px;}
+.assist-finding.gap{border-left:3px solid var(--red);}
+.assist-finding.present{border-left:3px solid var(--green);}
+.assist-finding-top{display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:5px;}
+.assist-finding-title{font-size:12.5px; font-weight:600;}
+.assist-finding-clause{font-family:var(--mono); font-size:10.5px; color:var(--muted-2);}
+.assist-finding-desc{font-size:12px; color:var(--muted); line-height:1.5;}
+.assist-spinner{width:13px; height:13px; border-radius:50%; border:2px solid var(--cyan-dim); border-top-color:var(--cyan); animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.assist-empty{color:var(--muted-2); font-size:12.5px; padding:40px 10px; text-align:center;}
+
+@media (max-width: 900px){
+  .assist-grid{grid-template-columns:1fr;}
+  .g4{grid-template-columns:repeat(2,1fr);}
+  .g3{grid-template-columns:repeat(2,1fr);}
+  .app{flex-direction:column;}
+  .sidebar{width:100%; height:auto; position:relative; flex-direction:row; align-items:center; overflow-x:auto;}
+  .brand{border-bottom:none; border-right:1px solid var(--border-soft); flex-shrink:0;}
+  .nav{display:flex; flex:none; padding:10px;}
+  .nav::before{display:none;}
+  .nav-item{flex-shrink:0; white-space:nowrap;}
+  .nav-dot{margin-left:0;}
+  .sidebar-foot{display:none;}
+  .content{padding:18px;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="sidebar">
+    <div class="brand">
+      <div class="brand-name">MERIDIAN</div>
+      <div class="brand-sub">Cyber Governance Platform</div>
+    </div>
+    <div class="nav" id="nav"></div>
+    <div class="sidebar-foot">ORG · Meridian Motors AG<br>PROGRAM · MY27 Platform<br>BUILT BY · Vaishnavi Dixit</div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="topbarTitle">Overview</div>
+        <div class="topbar-crumb" id="topbarCrumb">Cyber governance · MY27 program fleet</div>
+      </div>
+      <div class="topbar-right">
+        <div class="gsearch-wrap">
+          <input type="text" id="globalSearch" class="gsearch-input" placeholder="Search vehicles, CVEs, firmware, suppliers…  ( / )" autocomplete="off">
+          <div class="gsearch-results" id="gsearchResults"></div>
+        </div>
+        <div class="topbar-status"><span class="pulse" style="background:var(--amber); box-shadow:0 0 0 3px var(--amber-dim);"></span> Demo build · static dataset</div>
+      </div>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<script>
+/* ---------------------------- DATA ---------------------------- */
+
+const modules = [
+  {id:'overview', label:'Overview', count:null},
+  {id:'fleet', label:'Fleet & ECUs', count:'842'},
+  {id:'suppliers', label:'Suppliers', count:'23'},
+  {id:'firmware', label:'Firmware provenance', count:'156'},
+  {id:'trace', label:'Traceability', count:null},
+  {id:'vulns', label:'Vulnerabilities', count:'17'},
+  {id:'compliance', label:'Compliance', count:'78%'},
+  {id:'evidence', label:'Audit evidence', count:'64'},
+  {id:'activity', label:'Activity & audit log', count:null},
+  {id:'graph', label:'Knowledge graph', count:null},
+  {id:'assistant', label:'AI compliance assistant', count:'local'},
+  {id:'architecture', label:'Architecture & scope', count:null},
+  {id:'quantum', label:'Quantum anomaly detection', count:'beta'},
+];
+
+const suppliers = [
+  {name:'Aveon Semiconductor', tier:'Tier 1', cat:'Telematics SoC', risk:18, cert:['ISO/SAE 21434','TISAX AL3'], lastAudit:'2026-04-12', sla:'6h'},
+  {name:'Rihelm Systems', tier:'Tier 1', cat:'ADAS domain controller', risk:34, cert:['ISO/SAE 21434'], lastAudit:'2026-02-28', sla:'18h'},
+  {name:'Norvex Braking', tier:'Tier 1', cat:'Brake ECU', risk:12, cert:['ISO/SAE 21434','ISO 26262','TISAX AL3'], lastAudit:'2026-05-30', sla:'4h'},
+  {name:'Ondura Connect', tier:'Tier 2', cat:'Cellular modem', risk:57, cert:['TISAX AL2'], lastAudit:'2025-11-02', sla:'40h'},
+  {name:'Kestrel Optics', tier:'Tier 2', cat:'Camera module', risk:29, cert:['ISO/SAE 21434'], lastAudit:'2026-03-19', sla:'12h'},
+  {name:'Palisade Firmware Labs', tier:'Tier 3', cat:'Bootloader vendor', risk:71, cert:['—'], lastAudit:'2024-09-14', sla:'96h'},
+  {name:'Solenne Actuation', tier:'Tier 1', cat:'Steering ECU', risk:21, cert:['ISO/SAE 21434','ISO 26262'], lastAudit:'2026-06-01', sla:'8h'},
+];
+
+const fleet = [
+  {vin:'MRD27B••4471', model:'Aster GT — MY27', ecu:'Telematics Control Unit', fw:'TCU-4.12.3', supplier:'Aveon Semiconductor', status:'current'},
+  {vin:'MRD27B••4471', model:'Aster GT — MY27', ecu:'ADAS Domain Controller', fw:'ADC-2.7.0', supplier:'Rihelm Systems', status:'update-pending'},
+  {vin:'MRD27B••4471', model:'Aster GT — MY27', ecu:'Brake ECU', fw:'BRK-9.1.1', supplier:'Norvex Braking', status:'current'},
+  {vin:'MRD27S••2290', model:'Aster Sport — MY27', ecu:'Cellular Modem', fw:'CEL-1.4.8', supplier:'Ondura Connect', status:'vulnerable'},
+  {vin:'MRD27S••2290', model:'Aster Sport — MY27', ecu:'Camera Module (front)', fw:'CAM-3.0.2', supplier:'Kestrel Optics', status:'current'},
+  {vin:'MRD26E••9981', model:'Halcyon EV — MY26', ecu:'Bootloader', fw:'BOOT-1.0.9', supplier:'Palisade Firmware Labs', status:'vulnerable'},
+  {vin:'MRD26E••9981', model:'Halcyon EV — MY26', ecu:'Steering ECU', fw:'STR-5.2.0', supplier:'Solenne Actuation', status:'current'},
+  {vin:'MRD27B••7712', model:'Aster GT — MY27', ecu:'Telematics Control Unit', fw:'TCU-4.11.0', supplier:'Aveon Semiconductor', status:'update-pending'},
+];
+
+const firmware = [
+  {id:'FW-TCU-4.12.3', ecu:'Telematics Control Unit', ver:'4.12.3', hash:'a13f…9be2', signed:'Meridian Root CA G3', date:'2026-05-02', supplier:'Aveon Semiconductor'},
+  {id:'FW-ADC-2.7.0', ecu:'ADAS Domain Controller', ver:'2.7.0', hash:'6e02…c410', signed:'Meridian Root CA G3', date:'2026-04-18', supplier:'Rihelm Systems'},
+  {id:'FW-BRK-9.1.1', ecu:'Brake ECU', ver:'9.1.1', hash:'f871…22ab', signed:'Meridian Root CA G3', date:'2026-06-01', supplier:'Norvex Braking'},
+  {id:'FW-CEL-1.4.8', ecu:'Cellular Modem', ver:'1.4.8', hash:'0d4c…77e9', signed:'Ondura Vendor CA', date:'2025-10-22', supplier:'Ondura Connect'},
+  {id:'FW-BOOT-1.0.9', ecu:'Bootloader', ver:'1.0.9', hash:'9931…4f0d', signed:'Unverified — expired cert', date:'2024-08-30', supplier:'Palisade Firmware Labs'},
+  {id:'FW-STR-5.2.0', ecu:'Steering ECU', ver:'5.2.0', hash:'2ab7…d901', signed:'Meridian Root CA G3', date:'2026-05-27', supplier:'Solenne Actuation'},
+];
+
+const vulns = [
+  {id:'MER-2026-0091', cve:'CVE-2026-31842', sev:'critical', comp:'Bootloader — Palisade Firmware Labs', status:'Remediating', sla:'2d left', desc:'Signature verification bypass allows unsigned image flash over UDS.'},
+  {id:'MER-2026-0088', cve:'CVE-2026-29011', sev:'high', comp:'Cellular Modem — Ondura Connect', status:'Investigating', sla:'5d left', desc:'AT command injection via malformed SMS wake payload.'},
+  {id:'MER-2026-0084', cve:'internal', sev:'medium', comp:'ADAS Domain Controller — Rihelm Systems', status:'Testing', sla:'9d left', desc:'Insufficient rate limiting on diagnostic CAN service.'},
+  {id:'MER-2026-0079', cve:'CVE-2025-48810', sev:'medium', comp:'Camera Module — Kestrel Optics', status:'Deployed', sla:'closed', desc:'Buffer over-read in image pipeline parser, patched in CAM-3.0.2.'},
+  {id:'MER-2026-0071', cve:'internal', sev:'low', comp:'Telematics Control Unit — Aveon Semiconductor', status:'Deployed', sla:'closed', desc:'Verbose debug logging exposed on production build.'},
+];
+
+const compliance21434 = [
+  {id:'Clause 5', name:'Organizational cybersecurity management', pct:92},
+  {id:'Clause 6', name:'Project-dependent cybersecurity management', pct:81},
+  {id:'Clause 8', name:'Continuous cybersecurity activities (TARA, monitoring)', pct:64},
+  {id:'Clause 9', name:'Concept phase risk assessment', pct:88},
+  {id:'Clause 10', name:'Product development', pct:74},
+  {id:'Clause 11', name:'Cybersecurity validation', pct:70},
+  {id:'Clause 12', name:'Production, operations & maintenance', pct:59},
+];
+const complianceR155 = [
+  {id:'R155 §7.2', name:'Cybersecurity Management System certification', pct:95},
+  {id:'R155 Annex 5', name:'Threat and mitigation coverage (Part A/B)', pct:77},
+  {id:'R155 §7.3', name:'Post-production monitoring & incident response', pct:68},
+  {id:'R156 §7.1', name:'Software Update Management System (SUMS)', pct:83},
+  {id:'R156 Annex 4', name:'Update campaign traceability & rollback evidence', pct:72},
+];
+
+const evidence = [
+  {name:'TARA_Aster-GT_MY27_v3.pdf', type:'Threat & Risk Assessment', linked:'21434 Clause 9', date:'2026-05-14', by:'S. Marchetti'},
+  {name:'CSMS_Certification_2026.pdf', type:'CSMS certificate', linked:'R155 §7.2', date:'2026-01-10', by:'External auditor — TÜV'},
+  {name:'PenTest_TCU_Report_Q2.pdf', type:'Penetration test report', linked:'21434 Clause 11', date:'2026-04-30', by:'Redshear Labs'},
+  {name:'SUMS_Process_Def_v5.docx', type:'Process definition', linked:'R156 §7.1', date:'2026-03-02', by:'B. Okafor'},
+  {name:'Ondura_SBOM_CEL-1.4.8.json', type:'SBOM', linked:'Supplier evidence', date:'2025-10-20', by:'Ondura Connect'},
+  {name:'Incident_MER-2026-0091_Log.pdf', type:'Incident response log', linked:'R155 §7.3', date:'2026-06-28', by:'SOC on-call'},
+  {name:'Rollback_Evidence_ADC-2.6.9.pdf', type:'Update rollback evidence', linked:'R156 Annex 4', date:'2026-04-19', by:'B. Okafor'},
+];
+
+const sevMap = {critical:'red', high:'amber', medium:'cyan', low:'gray'};
+const statusMap = {current:'green', 'update-pending':'amber', vulnerable:'red'};
+
+/* Notifications + audit log — seeded history, with new entries added live
+   as you interact with the demo (upload a file, run the AI assistant, etc). */
+const notifications = [
+  {level:'crit', text:'Critical vulnerability MER-2026-0091 discovered on Bootloader — Palisade Firmware Labs', time:'2026-06-28 09:14'},
+  {level:'warn', text:"Supplier certificate expired — Palisade Firmware Labs, ISO/SAE 21434", time:'2026-06-20 07:02'},
+  {level:'warn', text:'Firmware rollback failed for ADC-2.6.9 on 3 vehicles, retry scheduled', time:'2026-06-14 16:41'},
+  {level:'ok', text:'Update rollout OTA-2025-0079-R completed — CAM-3.0.2, 3,902 vehicles', time:'2026-05-03 11:20'},
+  {level:'warn', text:'Audit evidence overdue — R156 Annex 4 rollback package for STR-5.2.0', time:'2026-04-29 08:00'},
+  {level:'ok', text:'Supplier audit completed — Norvex Braking, no findings', time:'2026-05-30 13:10'},
+];
+let activityLog = [
+  {time:'2026-06-28 09:14', actor:'System', text:'Vulnerability MER-2026-0091 auto-created from supplier disclosure'},
+  {time:'2026-06-22 10:03', actor:'S. Marchetti', text:'Reviewed TARA_Aster-GT_MY27_v3.pdf, marked complete'},
+  {time:'2026-06-20 07:02', actor:'System', text:'Certificate expiry detected — Palisade Firmware Labs'},
+  {time:'2026-06-14 16:41', actor:'B. Okafor', text:'Triggered rollback for ADC-2.6.9'},
+  {time:'2026-05-30 13:12', actor:'External auditor — TÜV', text:'Closed audit for Norvex Braking'},
+  {time:'2026-05-14 09:40', actor:'S. Marchetti', text:'Uploaded TARA_Aster-GT_MY27_v3.pdf'},
+  {time:'2026-04-19 15:22', actor:'B. Okafor', text:'Uploaded Rollback_Evidence_ADC-2.6.9.pdf'},
+];
+function logActivity(text, actor){
+  activityLog.unshift({time:new Date().toISOString().slice(0,16).replace('T',' '), actor:actor||'You (this session)', text});
+}
+function pushToast(message, level){
+  const stack = document.getElementById('toastStack');
+  const el = document.createElement('div');
+  el.className = 'toast' + (level==='warn'?' warn':level==='crit'?' crit':'');
+  el.textContent = message;
+  stack.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(), 300); }, 3800);
+}
+
+/* ---------------------------- NAV / RENDER ---------------------------- */
+
+let active = 'overview';
+let selectedChain = 1;
+let vulnFilter = 'all';
+
+function renderNav(){
+  const nav = document.getElementById('nav');
+  nav.innerHTML = modules.map(m => `
+    <div class="nav-item ${m.id===active?'active':''}" data-id="${m.id}">
+      <span class="nav-dot"></span>
+      <span class="nav-label">${m.label}</span>
+      ${m.count?`<span class="nav-count">${m.count}</span>`:''}
+    </div>
+  `).join('');
+  nav.querySelectorAll('.nav-item').forEach(el=>{
+    el.addEventListener('click', ()=>{ active = el.dataset.id; renderNav(); renderContent(); });
+  });
+}
+
+function setTop(title, crumb){
+  document.getElementById('topbarTitle').textContent = title;
+  document.getElementById('topbarCrumb').textContent = crumb;
+}
+
+function bar(pct, color){
+  return `<div class="bar-track"><div class="bar-fill" style="width:${pct}%; background:${color};"></div></div>`;
+}
+function riskColor(r){ return r<25?'var(--green)': r<55?'var(--amber)':'var(--red)'; }
+function pctColor(p){ return p>=85?'var(--green)': p>=65?'var(--amber)':'var(--red)'; }
+
+function renderContent(){
+  const c = document.getElementById('content');
+  if(active==='overview') return renderOverview(c);
+  if(active==='fleet') return renderFleet(c);
+  if(active==='suppliers') return renderSuppliers(c);
+  if(active==='firmware') return renderFirmware(c);
+  if(active==='trace') return renderTrace(c);
+  if(active==='vulns') return renderVulns(c);
+  if(active==='compliance') return renderCompliance(c);
+  if(active==='evidence') return renderEvidence(c);
+  if(active==='graph') return renderGraph(c);
+  if(active==='assistant') return renderAssistant(c);
+  if(active==='quantum') return renderQuantum(c);
+  if(active==='architecture') return renderArchitecture(c);
+  if(active==='activity') return renderActivity(c);
+}
+
+/* ---- OVERVIEW ---- */
+function renderOverview(c){
+  setTop('Overview','Cyber governance · MY27 program fleet');
+  const openCrit = vulns.filter(v=>v.sev==='critical'&&v.status!=='Deployed').length;
+  const sevCounts = ['critical','high','medium','low'].map(s=>({sev:s, n:vulns.filter(v=>v.sev===s).length}));
+  const maxSev = Math.max(...sevCounts.map(s=>s.n), 1);
+  c.innerHTML = `
+  <div class="desc">Program-wide posture across fleet inventory, supplier risk, open vulnerabilities and audit readiness.</div>
+  <div class="grid g4">
+    <div class="card"><div class="metric-label">Vehicles tracked</div><div class="metric-value">842 <span class="delta up-good">▲ 24</span></div><div class="metric-sub">3 active programs · this month</div></div>
+    <div class="card"><div class="metric-label">ECUs monitored</div><div class="metric-value">6,190</div><div class="metric-sub">156 firmware variants</div></div>
+    <div class="card"><div class="metric-label">Open vulnerabilities</div><div class="metric-value ${openCrit?'red':'amber'}">${vulns.filter(v=>v.status!=='Deployed').length} <span class="delta down-good">▼ 3</span></div><div class="metric-sub">${openCrit} critical · SLA at risk</div></div>
+    <div class="card"><div class="metric-label">Compliance readiness</div><div class="metric-value cyan">78% <span class="delta up-good">▲ 7pt</span></div><div class="metric-sub">ISO/SAE 21434 + UN R155/R156</div></div>
+  </div>
+
+  <h2 class="section-title">Open vulnerabilities by severity</h2>
+  <div class="card">
+    <div style="display:flex; align-items:flex-end; gap:22px; height:120px; padding:6px 4px;">
+      ${sevCounts.map(s=>`
+        <div style="display:flex; flex-direction:column; align-items:center; gap:6px; flex:1;">
+          <div class="mono" style="font-size:12px; color:var(--${s.sev==='low'?'muted':sevMap[s.sev]});">${s.n}</div>
+          <div style="width:100%; max-width:56px; height:${Math.max((s.n/maxSev)*84,4)}px; background:var(--${s.sev==='low'?'muted-2':sevMap[s.sev]}); border-radius:4px 4px 0 0; opacity:0.85;"></div>
+          <div class="mono" style="font-size:10.5px; color:var(--muted-2); text-transform:uppercase;">${s.sev}</div>
+        </div>`).join('')}
+    </div>
+  </div>
+
+  <h2 class="section-title">Supplier risk snapshot</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Supplier</th><th>Category</th><th>Risk score</th><th>Certifications</th><th>Last audit</th></tr></thead>
+      <tbody>
+        ${suppliers.slice(0,4).map(s=>`
+          <tr>
+            <td>${s.name}</td>
+            <td class="mono">${s.cat}</td>
+            <td style="width:160px;"><div class="row-flex"><span class="mono" style="width:26px;">${s.risk}</span>${bar(s.risk, riskColor(s.risk))}</div></td>
+            <td>${s.cert.map(cc=>`<span class="badge b-gray">${cc}</span>`).join(' ')}</td>
+            <td class="mono">${s.lastAudit}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="section-title">Active critical / high vulnerabilities</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Component</th><th>Severity</th><th>Status</th><th>SLA</th></tr></thead>
+      <tbody>
+        ${vulns.filter(v=>v.sev==='critical'||v.sev==='high').map(v=>`
+          <tr>
+            <td class="mono">${v.id}</td>
+            <td>${v.comp}</td>
+            <td><span class="badge b-${sevMap[v.sev]}"><span class="badge-dot"></span>${v.sev}</span></td>
+            <td>${v.status}</td>
+            <td class="mono">${v.sla}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+  `;
+}
+
+/* ---- FLEET ---- */
+function renderFleet(c){
+  setTop('Fleet & ECU inventory','842 vehicles · 6,190 ECUs across 3 programs');
+  c.innerHTML = `
+  <div class="desc">Vehicle-to-ECU mapping with live firmware version and update status, sourced from OTA telemetry and plant build records.</div>
+  <div class="toolbar">
+    <input type="text" placeholder="Search VIN, model or ECU…" id="fleetSearch">
+    <div class="filter-chips">
+      <div class="chip active" data-f="all">All</div>
+      <div class="chip" data-f="vulnerable">Vulnerable</div>
+      <div class="chip" data-f="update-pending">Update pending</div>
+      <div class="chip" data-f="current">Current</div>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>VIN</th><th>Program</th><th>ECU</th><th>Firmware</th><th>Supplier</th><th>Status</th></tr></thead>
+      <tbody id="fleetBody"></tbody>
+    </table>
+  </div>`;
+  let f = 'all', q='';
+  function draw(){
+    const rows = fleet.filter(r => (f==='all'||r.status===f) && (r.vin+r.model+r.ecu).toLowerCase().includes(q));
+    document.getElementById('fleetBody').innerHTML = rows.map(r=>`
+      <tr>
+        <td class="mono">${r.vin}</td>
+        <td>${r.model}</td>
+        <td>${r.ecu}</td>
+        <td class="mono">${r.fw}</td>
+        <td>${r.supplier}</td>
+        <td><span class="badge b-${statusMap[r.status]}"><span class="badge-dot"></span>${r.status.replace('-',' ')}</span></td>
+      </tr>`).join('') || `<tr><td colspan="6" style="color:var(--muted-2); padding:20px 12px;">No matching rows.</td></tr>`;
+  }
+  draw();
+  document.getElementById('fleetSearch').addEventListener('input', e=>{ q=e.target.value.toLowerCase(); draw(); });
+  c.querySelectorAll('.chip').forEach(ch=>ch.addEventListener('click', ()=>{
+    c.querySelectorAll('.chip').forEach(x=>x.classList.remove('active')); ch.classList.add('active');
+    f = ch.dataset.f; draw();
+  }));
+}
+
+/* ---- SUPPLIERS ---- */
+function riskHistogram(){
+  const buckets = [{label:'0-25 low',min:0,max:25},{label:'25-50 moderate',min:25,max:50},{label:'50-75 elevated',min:50,max:75},{label:'75-100 high',min:75,max:100}];
+  const counts = buckets.map(b=>({...b, n: suppliers.filter(s=>s.risk>=b.min && s.risk<b.max).length}));
+  const max = Math.max(...counts.map(c=>c.n),1);
+  const col = b => b.min>=75?'var(--red)':b.min>=50?'var(--amber)':b.min>=25?'var(--cyan)':'var(--green)';
+  return `
+  <div style="display:flex; align-items:flex-end; gap:22px; height:110px; padding:6px 4px;">
+    ${counts.map(b=>`
+      <div style="display:flex; flex-direction:column; align-items:center; gap:6px; flex:1;">
+        <div class="mono" style="font-size:12px; color:${col(b)};">${b.n}</div>
+        <div style="width:100%; max-width:64px; height:${Math.max((b.n/max)*76,4)}px; background:${col(b)}; border-radius:4px 4px 0 0; opacity:0.85;"></div>
+        <div class="mono" style="font-size:10px; color:var(--muted-2); text-align:center;">${b.label}</div>
+      </div>`).join('')}
+  </div>`;
+}
+function renderSuppliers(c){
+  setTop('Supplier management','23 active suppliers · cybersecurity evidence & risk scoring');
+  c.innerHTML = `
+  <div class="desc">Risk score blends certification coverage, incident response SLA, audit recency and software integrity signals (0 = lowest risk).</div>
+
+  <h2 class="section-title">Risk distribution</h2>
+  <div class="card">${riskHistogram()}</div>
+
+  <h2 class="section-title">All suppliers</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Supplier</th><th>Tier</th><th>Category</th><th>Risk score</th><th>Certifications</th><th>Response SLA</th><th>Last audit</th></tr></thead>
+      <tbody>
+        ${suppliers.map(s=>`
+          <tr>
+            <td>${s.name}</td>
+            <td class="mono">${s.tier}</td>
+            <td class="mono">${s.cat}</td>
+            <td style="width:170px;"><div class="row-flex"><span class="mono" style="width:26px;">${s.risk}</span>${bar(s.risk, riskColor(s.risk))}</div></td>
+            <td>${s.cert.map(cc=>`<span class="badge ${cc==='—'?'b-red':'b-gray'}">${cc}</span>`).join(' ')}</td>
+            <td class="mono">${s.sla}</td>
+            <td class="mono">${s.lastAudit}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+/* ---- FIRMWARE ---- */
+function renderFirmware(c){
+  setTop('Firmware provenance','156 signed builds · origin, hash & deployment history');
+  c.innerHTML = `
+  <div class="desc">Every firmware image is hashed at build, signed by an authorized CA, and tracked through deployment. Unverified signing chains are flagged for immediate review.</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Firmware ID</th><th>ECU</th><th>Version</th><th>SHA-256</th><th>Signed by</th><th>Deployed</th><th>Origin supplier</th></tr></thead>
+      <tbody>
+        ${firmware.map(f=>`
+          <tr>
+            <td class="mono">${f.id}</td>
+            <td>${f.ecu}</td>
+            <td class="mono">${f.ver}</td>
+            <td class="mono">${f.hash}</td>
+            <td>${f.signed.includes('Unverified')?`<span class="badge b-red"><span class="badge-dot"></span>Unverified</span>`:`<span class="badge b-green"><span class="badge-dot"></span>${f.signed}</span>`}</td>
+            <td class="mono">${f.date}</td>
+            <td>${f.supplier}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+/* ---- TRACEABILITY ---- */
+const chainSteps = [
+  {k:'Supplier', v:'Palisade Firmware Labs', m:'Tier 3 · risk 71'},
+  {k:'Component', v:'Bootloader v1.0.9', m:'BOOT-ECU-014'},
+  {k:'Firmware build', v:'FW-BOOT-1.0.9', m:'hash 9931…4f0d'},
+  {k:'SBOM entry', v:'mbedtls 2.16.2', m:'3 known CVEs'},
+  {k:'Vulnerability', v:'CVE-2026-31842', m:'critical · sig bypass'},
+  {k:'Software update', v:'OTA-2026-0091-R', m:'staged, not released'},
+  {k:'Vehicle release', v:'Halcyon EV — MY26', m:'214 vehicles affected'},
+];
+function renderTrace(c){
+  setTop('Traceability','Supplier → component → firmware → SBOM → vulnerability → update → release');
+  c.innerHTML = `
+  <div class="desc">Click any node to trace the full chain of custody for a critical finding currently affecting the MY26 Halcyon EV program.</div>
+  <div class="chain-wrap">
+    <div class="chain" id="chain"></div>
+    <div class="chain-detail" id="chainDetail"></div>
+  </div>
+  <h2 class="section-title">Other traced findings</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Vulnerability</th><th>Traced path length</th><th>Vehicles affected</th><th>Update status</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">CVE-2026-31842</td><td>7 hops</td><td>214</td><td><span class="badge b-amber"><span class="badge-dot"></span>staged</span></td></tr>
+        <tr><td class="mono">CVE-2026-29011</td><td>6 hops</td><td>1,340</td><td><span class="badge b-red"><span class="badge-dot"></span>investigating</span></td></tr>
+        <tr><td class="mono">CVE-2025-48810</td><td>7 hops</td><td>3,902</td><td><span class="badge b-green"><span class="badge-dot"></span>deployed</span></td></tr>
+      </tbody>
+    </table>
+  </div>`;
+  drawChain();
+}
+function drawChain(){
+  const wrap = document.getElementById('chain');
+  wrap.innerHTML = chainSteps.map((s,i)=>`
+    ${i>0?'<div class="chain-arrow">→</div>':''}
+    <div class="chain-node ${i===selectedChain?'selected':''}" data-i="${i}">
+      <div class="k">${s.k}</div>
+      <div class="v">${s.v}</div>
+      <div class="m">${s.m}</div>
+    </div>`).join('');
+  wrap.querySelectorAll('.chain-node').forEach(el=>el.addEventListener('click', ()=>{
+    selectedChain = parseInt(el.dataset.i); drawChain();
+  }));
+  const details = [
+    'Palisade Firmware Labs is a Tier 3 bootloader vendor with no active ISO/SAE 21434 certification on file and a 96h incident response SLA — flagged as a supply-chain risk outlier.',
+    'The bootloader component (BOOT-ECU-014) governs secure boot and signature verification for the vehicle domain controller.',
+    'Firmware build FW-BOOT-1.0.9 was signed under an expired vendor certificate rather than the Meridian Root CA, which is what triggered provenance review.',
+    'The SBOM for this build lists mbedtls 2.16.2, an outdated TLS library carrying 3 known CVEs including the signature bypass.',
+    'CVE-2026-31842 allows an attacker with UDS diagnostic access to flash an unsigned firmware image, bypassing secure boot entirely.',
+    'A remediation update (OTA-2026-0091-R) has been built and is staged in the update management system pending validation sign-off.',
+    'The affected bootloader ships on 214 Halcyon EV (MY26) vehicles currently in the field, all flagged for priority OTA rollout once validation completes.'
+  ];
+  document.getElementById('chainDetail').textContent = details[selectedChain];
+}
+
+/* ---- VULNS ---- */
+function renderVulns(c){
+  setTop('Vulnerability management','17 tracked findings · discovery through deployment');
+  c.innerHTML = `
+  <div class="desc">Lifecycle: discovered → investigating → remediating → testing → deployed. SLA clocks start at discovery and scale with severity.</div>
+  <div class="toolbar">
+    <div class="filter-chips">
+      <div class="chip active" data-f="all">All severities</div>
+      <div class="chip" data-f="critical">Critical</div>
+      <div class="chip" data-f="high">High</div>
+      <div class="chip" data-f="medium">Medium</div>
+      <div class="chip" data-f="low">Low</div>
+    </div>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>ID</th><th>Reference</th><th>Component</th><th>Description</th><th>Severity</th><th>Status</th><th>SLA</th></tr></thead>
+    <tbody id="vulnBody"></tbody>
+  </table></div>`;
+  function draw(){
+    const rows = vulns.filter(v=>vulnFilter==='all'||v.sev===vulnFilter);
+    document.getElementById('vulnBody').innerHTML = rows.map(v=>`
+      <tr>
+        <td class="mono">${v.id}</td>
+        <td class="mono">${v.cve}</td>
+        <td>${v.comp}</td>
+        <td style="max-width:280px; color:var(--muted);">${v.desc}</td>
+        <td><span class="badge b-${sevMap[v.sev]}"><span class="badge-dot"></span>${v.sev}</span></td>
+        <td>${v.status}</td>
+        <td class="mono">${v.sla}</td>
+      </tr>`).join('');
+  }
+  draw();
+  c.querySelectorAll('.chip').forEach(ch=>ch.addEventListener('click', ()=>{
+    c.querySelectorAll('.chip').forEach(x=>x.classList.remove('active')); ch.classList.add('active');
+    vulnFilter = ch.dataset.f; draw();
+  }));
+}
+
+/* ---- COMPLIANCE ---- */
+const complianceTrend = [
+  {m:'Jan', pct:62}, {m:'Feb', pct:68}, {m:'Mar', pct:71}, {m:'Apr', pct:74}, {m:'May', pct:76}, {m:'Jun', pct:78},
+];
+function trendChart(data){
+  const w=760,h=140,pad=28;
+  const max=100, min=40;
+  const step=(w-pad*2)/(data.length-1);
+  const y = v => h-pad-((v-min)/(max-min))*(h-pad*2);
+  const path = data.map((d,i)=>`${i===0?'M':'L'} ${pad+i*step} ${y(d.pct)}`).join(' ');
+  const area = path + ` L ${pad+(data.length-1)*step} ${h-pad} L ${pad} ${h-pad} Z`;
+  return `
+  <svg viewBox="0 0 ${w} ${h}" width="100%" style="display:block;">
+    <path d="${area}" fill="var(--cyan)" opacity="0.08"/>
+    <path d="${path}" fill="none" stroke="var(--cyan)" stroke-width="2"/>
+    ${data.map((d,i)=>`<circle cx="${pad+i*step}" cy="${y(d.pct)}" r="3.5" fill="var(--bg)" stroke="var(--cyan)" stroke-width="2"/>`).join('')}
+    ${data.map((d,i)=>`<text x="${pad+i*step}" y="${h-6}" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#8CA0BE">${d.m}</text>`).join('')}
+    ${data.map((d,i)=>`<text x="${pad+i*step}" y="${y(d.pct)-10}" text-anchor="middle" font-family="JetBrains Mono" font-size="10.5" fill="#31D8C4">${d.pct}%</text>`).join('')}
+  </svg>`;
+}
+function renderCompliance(c){
+  setTop('Compliance dashboard','ISO/SAE 21434 · UN R155/R156 readiness');
+  c.innerHTML = `
+  <div class="desc">Readiness percentages are illustrative, derived from linked audit evidence coverage per clause/requirement. Not a certification claim.</div>
+
+  <h2 class="section-title">Overall readiness trend</h2>
+  <div class="card">${trendChart(complianceTrend)}</div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h2 class="section-title" style="margin-top:0;">ISO/SAE 21434</h2>
+      ${compliance21434.map(x=>`
+        <div class="clause-row">
+          <div class="clause-top"><span class="clause-name">${x.name} <span class="clause-id">· ${x.id}</span></span><span class="clause-pct" style="color:${pctColor(x.pct)}">${x.pct}%</span></div>
+          ${bar(x.pct, pctColor(x.pct))}
+        </div>`).join('')}
+    </div>
+    <div class="card">
+      <h2 class="section-title" style="margin-top:0;">UN R155 / R156</h2>
+      ${complianceR155.map(x=>`
+        <div class="clause-row">
+          <div class="clause-top"><span class="clause-name">${x.name} <span class="clause-id">· ${x.id}</span></span><span class="clause-pct" style="color:${pctColor(x.pct)}">${x.pct}%</span></div>
+          ${bar(x.pct, pctColor(x.pct))}
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+/* ---- EVIDENCE ---- */
+let evidenceLocal = [];
+function renderEvidence(c){
+  setTop('Audit evidence repository','64 documents · linked to requirements & approvals');
+  c.innerHTML = `
+  <div class="desc">Centralized store for documents, logs, approvals and reports required for audits and type-approval (homologation) submissions.</div>
+  <div class="upload-zone" id="uploadZone">
+    <input type="file" id="uploadInput" multiple style="display:none;">
+    <div class="upload-icon">↑</div>
+    <div class="upload-text">Drop files here or <span class="upload-link">browse</span></div>
+    <div class="upload-sub">Session only — files are read in your browser and never leave it or reach a server. Not persisted on reload.</div>
+  </div>
+  <div class="card" style="padding:0;" id="evidenceList"></div>`;
+
+  const zone = document.getElementById('uploadZone');
+  const input = document.getElementById('uploadInput');
+  zone.addEventListener('click', ()=>input.click());
+  zone.addEventListener('dragover', e=>{ e.preventDefault(); zone.classList.add('drag'); });
+  zone.addEventListener('dragleave', ()=> zone.classList.remove('drag'));
+  zone.addEventListener('drop', e=>{
+    e.preventDefault(); zone.classList.remove('drag');
+    handleFiles(e.dataTransfer.files);
+  });
+  input.addEventListener('change', e=> handleFiles(e.target.files));
+
+  function handleFiles(files){
+    Array.from(files).forEach(f=>{
+      evidenceLocal.unshift({
+        name:f.name, type:'Uploaded document', linked:'Unlinked — needs clause mapping',
+        date:new Date().toISOString().slice(0,10), by:'You (this session)', size:f.size
+      });
+    });
+    drawList();
+    pushToast(`${files.length} file${files.length===1?'':'s'} added to evidence repository`, 'ok');
+    logActivity(`Evidence uploaded: ${Array.from(files).map(f=>f.name).join(', ')}`);
+  }
+  function drawList(){
+    const all = [...evidenceLocal, ...evidence];
+    document.getElementById('evidenceList').innerHTML = all.map(e=>`
+      <div class="evidence-item">
+        <div class="evidence-icon">${e.name.split('.').pop().toUpperCase().slice(0,3)}</div>
+        <div class="evidence-meta">
+          <div class="evidence-name">${e.name}</div>
+          <div class="evidence-sub">${e.type} · linked to ${e.linked}</div>
+        </div>
+        <div class="mono" style="color:var(--muted-2); font-size:11px;">${e.date}</div>
+        <div class="mono" style="color:var(--muted); font-size:11px; width:150px; text-align:right;">${e.by}</div>
+      </div>`).join('');
+  }
+  drawList();
+}
+
+/* ---- KNOWLEDGE GRAPH ---- */
+const gCols = {supplier:70, firmware:250, sbom:420, vuln:590, vehicle:790};
+const gTypeColor = {supplier:'var(--cyan)', firmware:'var(--blue)', sbom:'var(--amber)', vuln:'var(--red)', vehicle:'var(--green)'};
+const gNodesRaw = [
+  {id:'s-aveon', type:'supplier', label:'Aveon Semiconductor', sub:'Tier 1'},
+  {id:'s-rihelm', type:'supplier', label:'Rihelm Systems', sub:'Tier 1'},
+  {id:'s-norvex', type:'supplier', label:'Norvex Braking', sub:'Tier 1'},
+  {id:'s-ondura', type:'supplier', label:'Ondura Connect', sub:'Tier 2'},
+  {id:'s-kestrel', type:'supplier', label:'Kestrel Optics', sub:'Tier 2'},
+  {id:'s-palisade', type:'supplier', label:'Palisade Firmware Labs', sub:'Tier 3'},
+  {id:'s-solenne', type:'supplier', label:'Solenne Actuation', sub:'Tier 1'},
+
+  {id:'f-tcu', type:'firmware', label:'FW-TCU-4.12.3', sub:'Telematics Control Unit'},
+  {id:'f-adc', type:'firmware', label:'FW-ADC-2.7.0', sub:'ADAS Domain Controller'},
+  {id:'f-brk', type:'firmware', label:'FW-BRK-9.1.1', sub:'Brake ECU'},
+  {id:'f-cel', type:'firmware', label:'FW-CEL-1.4.8', sub:'Cellular Modem'},
+  {id:'f-cam', type:'firmware', label:'FW-CAM-3.0.2', sub:'Camera Module'},
+  {id:'f-boot', type:'firmware', label:'FW-BOOT-1.0.9', sub:'Bootloader'},
+  {id:'f-str', type:'firmware', label:'FW-STR-5.2.0', sub:'Steering ECU'},
+
+  {id:'sb-mbed', type:'sbom', label:'mbedtls 2.16.2', sub:'SBOM entry'},
+
+  {id:'v-31842', type:'vuln', label:'CVE-2026-31842', sub:'critical'},
+  {id:'v-29011', type:'vuln', label:'CVE-2026-29011', sub:'high'},
+  {id:'v-0084', type:'vuln', label:'MER-2026-0084', sub:'medium'},
+  {id:'v-48810', type:'vuln', label:'CVE-2025-48810', sub:'medium'},
+  {id:'v-0071', type:'vuln', label:'MER-2026-0071', sub:'low'},
+
+  {id:'veh-aster-gt', type:'vehicle', label:'Aster GT — MY27', sub:'fleet program'},
+  {id:'veh-aster-sport', type:'vehicle', label:'Aster Sport — MY27', sub:'fleet program'},
+  {id:'veh-halcyon', type:'vehicle', label:'Halcyon EV — MY26', sub:'fleet program'},
+];
+const gEdges = [
+  ['s-aveon','f-tcu'], ['s-rihelm','f-adc'], ['s-norvex','f-brk'], ['s-ondura','f-cel'],
+  ['s-kestrel','f-cam'], ['s-palisade','f-boot'], ['s-solenne','f-str'],
+  ['f-boot','sb-mbed'], ['sb-mbed','v-31842'],
+  ['f-cel','v-29011'], ['f-adc','v-0084'], ['f-cam','v-48810'], ['f-tcu','v-0071'],
+  ['f-tcu','veh-aster-gt'], ['f-adc','veh-aster-gt'], ['f-brk','veh-aster-gt'],
+  ['f-cel','veh-aster-sport'], ['f-cam','veh-aster-sport'],
+  ['f-boot','veh-halcyon'], ['f-str','veh-halcyon'],
+  ['v-31842','veh-halcyon'], ['v-29011','veh-aster-sport'], ['v-48810','veh-aster-sport'],
+];
+const gNodeDetail = {
+  's-palisade':'Tier 3 bootloader vendor with no active ISO/SAE 21434 certification and a 96h response SLA — the highest-risk node in the graph.',
+  'f-boot':'Signed under an expired vendor certificate instead of the Meridian Root CA, which triggered a provenance review.',
+  'sb-mbed':'Outdated TLS library carrying 3 known CVEs, including the signature-bypass finding below.',
+  'v-31842':'Signature verification bypass — allows an unsigned firmware image to be flashed via UDS diagnostic access.',
+  'veh-halcyon':'214 MY26 vehicles in the field carry the affected bootloader build, flagged for priority OTA rollout.',
+};
+let gSelected = null;
+function gLayout(){
+  const byCol = {};
+  gNodesRaw.forEach(n=>{ (byCol[n.type] = byCol[n.type]||[]).push(n); });
+  const maxCount = Math.max(...Object.values(byCol).map(a=>a.length));
+  const rowH = 54, topPad = 20;
+  const height = topPad*2 + (maxCount-1)*rowH + 20;
+  Object.keys(byCol).forEach(type=>{
+    const arr = byCol[type];
+    const offset = (height - ((arr.length-1)*rowH)) / 2;
+    arr.forEach((n,i)=>{ n.x = gCols[type]; n.y = offset + i*rowH; });
+  });
+  return height;
+}
+function renderGraph(c){
+  setTop('Knowledge graph','Supplier → firmware → SBOM → vulnerability → vehicle relationships');
+  const height = gLayout();
+  const nodeMap = {}; gNodesRaw.forEach(n=>nodeMap[n.id]=n);
+  const w = 900;
+  const edgesSvg = gEdges.map(([a,b])=>{
+    const n1=nodeMap[a], n2=nodeMap[b];
+    const mx=(n1.x+n2.x)/2;
+    return `<path class="gedge" data-a="${a}" data-b="${b}" d="M ${n1.x+58} ${n1.y} C ${mx} ${n1.y}, ${mx} ${n2.y}, ${n2.x-58} ${n2.y}"/>`;
+  }).join('');
+  const nodesSvg = gNodesRaw.map(n=>`
+    <g class="gnode" data-id="${n.id}" transform="translate(${n.x},${n.y})">
+      <circle r="7" fill="${gTypeColor[n.type]}" fill-opacity="0.18" stroke="${gTypeColor[n.type]}"/>
+      <circle r="2.6" fill="${gTypeColor[n.type]}"/>
+      <text class="glabel" x="12" y="-2">${n.label}</text>
+      <text class="gsub" x="12" y="9">${n.sub}</text>
+    </g>`).join('');
+  c.innerHTML = `
+  <div class="desc">Static rendering of the underlying graph model (Neo4j in production) linking suppliers, firmware, SBOM entries, vulnerabilities and vehicle programs. Click any node to trace its direct relationships.</div>
+  <div class="graph-wrap">
+    <div class="graph-legend">
+      ${Object.entries(gTypeColor).map(([t,col])=>`<div class="legend-item"><span class="legend-dot" style="background:${col};"></span>${t}</div>`).join('')}
+    </div>
+    <svg viewBox="0 0 ${w} ${height}" width="100%" style="display:block; min-height:${Math.min(height,560)}px;">
+      ${edgesSvg}
+      ${nodesSvg}
+    </svg>
+    <div class="graph-detail" id="graphDetail">Select a node to see its connections and context.</div>
+  </div>`;
+  const svg = c.querySelector('svg');
+  svg.querySelectorAll('.gnode').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const id = el.dataset.id;
+      gSelected = id;
+      svg.querySelectorAll('.gedge').forEach(e=>{
+        e.classList.toggle('hi', e.dataset.a===id || e.dataset.b===id);
+      });
+      const n = nodeMap[id];
+      const neighbors = gEdges.filter(([a,b])=>a===id||b===id).map(([a,b])=>nodeMap[a===id?b:a].label);
+      const detail = gNodeDetail[id] || `${n.label} (${n.type}) — connected to ${neighbors.length} node${neighbors.length===1?'':'s'}: ${neighbors.join(', ')}.`;
+      document.getElementById('graphDetail').textContent = detail;
+    });
+  });
+}
+
+/* ---- AI COMPLIANCE ASSISTANT ---- */
+const assistSample = `Vehicle Cybersecurity Program File — Halcyon EV (MY26)
+
+1. Cybersecurity Management System: certified by TÜV, valid through 2027.
+2. Threat Analysis and Risk Assessment (TARA): completed for telematics and ADAS domains, v2.
+3. Penetration test report: TCU only, dated 2025-11.
+4. Supplier cybersecurity requirements: included in Tier 1 contracts.
+5. Incident response process: documented, SOC on-call rotation defined.
+6. Software Bill of Materials: available for 4 of 7 ECUs.
+`;
+let assistBusy = false;
+
+/* Local heuristic evidence-category scanner — no network calls, works when
+   this file is hosted anywhere (GitHub Pages, a static site, etc). It looks
+   for keyword signals per required evidence category and reports coverage
+   the way a first-pass compliance triage would, before a human reviews it. */
+const assistCategories = [
+  {category:'CSMS certification', clause:'UN R155 §7.2', keys:['csms','certified','certification'],
+    present:'A Cybersecurity Management System certification reference was found in the document.',
+    gap:'No CSMS certification reference found — required for UN R155 type approval.'},
+  {category:'Threat & risk assessment (TARA)', clause:'ISO/SAE 21434 Clause 9 / R155 Annex 5', keys:['tara','threat analysis','risk assessment'],
+    present:'A TARA reference was found — verify it covers every domain in scope, not just the ones named.',
+    gap:'No TARA / threat-and-risk-assessment reference found — this is a core 21434 concept-phase deliverable.'},
+  {category:'Penetration test report', clause:'ISO/SAE 21434 Clause 11', keys:['penetration test','pen test','pentest','vulnerability test'],
+    present:'A penetration test reference was found — check it covers all ECUs, not a single component.',
+    gap:'No penetration test evidence found — validation testing is expected before release.'},
+  {category:'Software Bill of Materials (SBOM)', clause:'Supplier evidence / traceability', keys:['sbom','bill of materials','software bill'],
+    present:'SBOM evidence was found — confirm coverage extends to every ECU in the release, not a subset.',
+    gap:'No SBOM reference found — needed to trace component-level vulnerabilities to deployed firmware.'},
+  {category:'Supplier cybersecurity requirements', clause:'ISO/SAE 21434 Clause 5-6', keys:['supplier','tier 1','tier 2','contract'],
+    present:'Supplier cybersecurity requirements appear to be referenced in contractual terms.',
+    gap:'No mention of supplier cybersecurity requirements or flow-down contract terms.'},
+  {category:'Incident response process', clause:'UN R155 §7.3', keys:['incident response','soc','on-call','monitoring'],
+    present:'An incident response process or monitoring capability was referenced.',
+    gap:'No incident response process found — post-production monitoring is a R155 requirement.'},
+  {category:'Software Update Management System (SUMS)', clause:'UN R156 §7.1', keys:['sums','software update management','ota','over-the-air'],
+    present:'A software update management process (SUMS/OTA) reference was found.',
+    gap:'No SUMS / OTA update management process referenced — required under UN R156.'},
+  {category:'Update rollback & traceability evidence', clause:'UN R156 Annex 4', keys:['rollback','traceability','update campaign','version history'],
+    present:'Rollback or update traceability evidence was referenced.',
+    gap:'No rollback or update-traceability evidence found for deployed campaigns.'},
+];
+function scanAssistDoc(input){
+  const lower = input.toLowerCase();
+  const findings = assistCategories.map(c=>{
+    const hit = c.keys.some(k=>lower.includes(k));
+    return {category:c.category, clause:c.clause, status:hit?'present':'gap', note:hit?c.present:c.gap};
+  });
+  findings.sort((a,b)=> (a.status==='gap'?0:1) - (b.status==='gap'?0:1));
+  return findings;
+}
+
+function renderAssistant(c){
+  setTop('AI compliance assistant','Reviews program documentation against ISO/SAE 21434 & UN R155/156 evidence categories');
+  c.innerHTML = `
+  <div class="desc">Paste program documentation, an evidence summary, or an audit file excerpt below. This runs a local simulated review against the standard evidence categories, flagging what looks covered and what looks missing — the same first-pass triage a compliance engineer would do before an audit. <span style="color:var(--muted-2);">(Simulated locally — no document leaves your browser and no external API is called.)</span></div>
+  <div class="assist-grid">
+    <div>
+      <textarea class="assist-input" id="assistInput" placeholder="Paste document text here...">${assistSample}</textarea>
+      <div class="assist-toolbar">
+        <button class="btn" id="assistRun">Analyze document</button>
+        <button class="btn secondary" id="assistClear">Clear</button>
+      </div>
+    </div>
+    <div>
+      <div class="card assist-result" id="assistResult">
+        <div class="assist-empty">Results will appear here after analysis.</div>
+      </div>
+    </div>
+  </div>`;
+
+  document.getElementById('assistClear').addEventListener('click', ()=>{
+    document.getElementById('assistInput').value='';
+  });
+  document.getElementById('assistRun').addEventListener('click', runAssistant);
+}
+function runAssistant(){
+  if(assistBusy) return;
+  const input = document.getElementById('assistInput').value.trim();
+  const resultEl = document.getElementById('assistResult');
+  const btn = document.getElementById('assistRun');
+  if(!input){ resultEl.innerHTML = '<div class="assist-empty">Paste some document text first.</div>'; return; }
+  assistBusy = true;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="assist-spinner"></span> Analyzing…';
+  resultEl.innerHTML = '<div class="assist-empty">Reviewing document against ISO/SAE 21434 and UN R155/156 evidence categories…</div>';
+
+  setTimeout(()=>{
+    const findings = scanAssistDoc(input);
+    resultEl.innerHTML = findings.map(f=>`
+      <div class="assist-finding ${f.status==='present'?'present':'gap'}">
+        <div class="assist-finding-top">
+          <span class="assist-finding-title">${f.category}</span>
+          <span class="assist-finding-clause">${f.clause||''}</span>
+        </div>
+        <div class="assist-finding-desc">${f.note||''}</div>
+      </div>`).join('');
+    const gaps = findings.filter(f=>f.status==='gap').length;
+    pushToast(`Analysis complete — ${gaps} evidence gap${gaps===1?'':'s'} flagged`, gaps>2?'warn':'ok');
+    logActivity(`Ran AI compliance review, ${gaps} gap${gaps===1?'':'s'} flagged`);
+    assistBusy = false;
+    btn.disabled = false;
+    btn.textContent = 'Analyze document';
+  }, 700);
+}
+
+/* ---- QUANTUM ---- */
+function seededRandom(seed){
+  let s = seed % 2147483647; if(s<=0) s += 2147483646;
+  return function(){ s = (s*16807) % 2147483647; return (s-1)/2147483646; };
+}
+function renderQuantum(c){
+  setTop('Quantum anomaly detection','Task-oriented quantum kernel learning · edge-CPS signal monitoring');
+  const rand = seededRandom(42);
+  const points = [];
+  for(let i=0;i<48;i++){
+    let base = 0.18 + Math.sin(i/6)*0.05 + rand()*0.05;
+    if(i===19||i===20) base += 0.55;
+    if(i===37) base += 0.38;
+    points.push(Math.max(0, base));
+  }
+  const w=760,h=200,pad=24;
+  const max = Math.max(...points);
+  const step = (w-pad*2)/(points.length-1);
+  const path = points.map((p,i)=>`${i===0?'M':'L'} ${pad+i*step} ${h-pad-(p/max)*(h-pad*2)}`).join(' ');
+  const threshold = 0.5;
+  const threshY = h-pad-(threshold/max)*(h-pad*2);
+  const anomalies = points.map((p,i)=>({i,p})).filter(x=>x.p>threshold);
+
+  c.innerHTML = `
+  <div class="qm-banner">
+    <span class="tag">MOCK / DEMO</span>
+    <span>This module simulates output from a task-oriented quantum kernel learning model for anomaly detection on edge-CPS telemetry. Scores below are synthetic — no live quantum backend is connected. In production this would ingest CAN/ethernet signal windows and score deviation from a learned kernel embedding.</span>
+  </div>
+  <div class="grid g3">
+    <div class="card"><div class="metric-label">ECUs monitored</div><div class="metric-value cyan">312</div><div class="metric-sub">edge-CPS telemetry streams</div></div>
+    <div class="card"><div class="metric-label">Anomaly threshold</div><div class="metric-value">0.50</div><div class="metric-sub">kernel deviation score</div></div>
+    <div class="card"><div class="metric-label">Flagged windows (24h)</div><div class="metric-value amber">${anomalies.length}</div><div class="metric-sub">on Halcyon EV bus segment C</div></div>
+  </div>
+
+  <h2 class="section-title">Kernel anomaly score — Halcyon EV, CAN segment C (24h)</h2>
+  <div class="card">
+    <svg viewBox="0 0 ${w} ${h}" width="100%" style="display:block;">
+      <line x1="${pad}" y1="${threshY}" x2="${w-pad}" y2="${threshY}" stroke="#EA6363" stroke-width="1" stroke-dasharray="4 4" opacity="0.6"/>
+      <text x="${w-pad}" y="${threshY-6}" text-anchor="end" font-family="JetBrains Mono" font-size="10" fill="#EA6363">threshold</text>
+      <path d="${path}" fill="none" stroke="#31D8C4" stroke-width="2"/>
+      ${anomalies.map(a=>`<circle cx="${pad+a.i*step}" cy="${h-pad-(a.p/max)*(h-pad*2)}" r="4" fill="#EA6363"/>`).join('')}
+    </svg>
+  </div>
+
+  <h2 class="section-title">Flagged anomaly windows</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Window</th><th>ECU / bus segment</th><th>Kernel score</th><th>Likely cause (heuristic)</th><th>Status</th></tr></thead>
+      <tbody>
+        ${anomalies.map(a=>`
+          <tr>
+            <td class="mono">t+${a.i*30}min</td>
+            <td>Halcyon EV · CAN segment C</td>
+            <td class="mono" style="color:var(--red);">${a.p.toFixed(2)}</td>
+            <td>${a.p>0.7?'Signal pattern consistent with injection attempt':'Irregular timing jitter, possible sensor fault'}</td>
+            <td><span class="badge b-amber"><span class="badge-dot"></span>under review</span></td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+  <div class="desc" style="margin-top:16px;">Roadmap: connect to a real task-oriented quantum kernel (variational feature map + SVM decision boundary) trained on labeled edge-CPS attack/fault datasets, replacing this synthetic scoring function.</div>
+  `;
+}
+
+/* ---- ACTIVITY & AUDIT LOG ---- */
+const notifIcon = {crit:'var(--red)', warn:'var(--amber)', ok:'var(--green)'};
+function renderActivity(c){
+  setTop('Activity & audit log','System notifications and a per-user audit trail — R155 post-production evidence');
+  c.innerHTML = `
+  <div class="desc">The notification feed surfaces system-detected events (expiring certs, failed rollbacks, new vulnerabilities). The audit log below it is an append-only record of who did what — itself a piece of evidence for UN R155 §7.3.</div>
+
+  <h2 class="section-title">Notifications</h2>
+  <div class="card" style="padding:0;">
+    ${notifications.map(n=>`
+      <div class="notif-item">
+        <div class="notif-dot" style="background:${notifIcon[n.level]};"></div>
+        <div class="notif-body">${n.text}</div>
+        <div class="notif-time">${n.time}</div>
+      </div>`).join('')}
+  </div>
+
+  <h2 class="section-title">Audit log</h2>
+  <div class="table-wrap" id="auditLogWrap"></div>
+  `;
+  drawLog();
+}
+function drawLog(){
+  const wrap = document.getElementById('auditLogWrap');
+  if(!wrap) return;
+  wrap.innerHTML = activityLog.map(a=>`
+    <div class="log-row">
+      <div class="log-time">${a.time}</div>
+      <div class="log-actor">${a.actor}</div>
+      <div class="log-text">${a.text}</div>
+    </div>`).join('');
+}
+
+/* ---- ARCHITECTURE & SCOPE ---- */
+const scopeTable = [
+  {module:'Fleet & ECU inventory', demo:'Static in-browser mock array', prod:'PostgreSQL table synced from plant build systems and OTA telemetry ingestion'},
+  {module:'Traceability & knowledge graph', demo:'Hardcoded chain + fixed-layout SVG graph', prod:'Neo4j graph store, Cypher traversal queries, rendered with a graph viz library'},
+  {module:'AI compliance assistant', demo:'Local keyword-matching heuristic, runs in-browser, no network call', prod:'FastAPI endpoint calling LLM model via LangChain, with retrieval over the evidence repository'},
+  {module:'Quantum anomaly detection', demo:'Seeded synthetic scores, illustrative only', prod:'Task-oriented quantum kernel model scoring real CAN / Ethernet telemetry windows'},
+  {module:'Compliance dashboard', demo:'Hardcoded readiness percentages', prod:'Computed from evidence-repository completeness, mapped to 21434 / R155 / R156 clause taxonomy'},
+  {module:'Auth, audit logging, RBAC', demo:'Not implemented — single-user, no persistence', prod:'OAuth2/OIDC, per-role access to supplier vs. OEM data, immutable audit trail'},
+];
+function renderArchitecture(c){
+  setTop('Architecture & scope','How this prototype maps to a production build');
+  c.innerHTML = `
+  <div class="desc">This build is a front-end prototype: every screen is real and interactive, but the data is a static, hand-authored mock set with no backend, database, or live model behind it. It exists to validate the workflow and information architecture before investing in infrastructure. Below is the intended production stack and an honest breakdown of what's simulated today.</div>
+
+  <h2 class="section-title">Target production architecture</h2>
+  <div class="chain-wrap">
+    <div class="chain">
+      <div class="chain-node"><div class="k">Client</div><div class="v">React + TypeScript</div><div class="m">this UI, data-bound</div></div>
+      <div class="chain-arrow">→</div>
+      <div class="chain-node"><div class="k">API layer</div><div class="v">FastAPI (Python)</div><div class="m">REST + auth</div></div>
+      <div class="chain-arrow">→</div>
+      <div class="chain-node"><div class="k">Relational store</div><div class="v">PostgreSQL</div><div class="m">fleet, suppliers, evidence</div></div>
+      <div class="chain-arrow">→</div>
+      <div class="chain-node"><div class="k">Graph store</div><div class="v">Neo4j</div><div class="m">traceability, blast radius</div></div>
+      <div class="chain-arrow">→</div>
+      <div class="chain-node"><div class="k">AI layer</div><div class="v">LangChain</div><div class="m">compliance review</div></div>
+    </div>
+    <div class="chain-detail">Deployed as containerized services via Docker Compose (API, Postgres, Neo4j, and a worker for OTA/telemetry ingestion), with the quantum anomaly module as a separate scoring service consuming CAN/Ethernet signal windows off a message queue.</div>
+  </div>
+
+  <h2 class="section-title">What's real vs. simulated in this build</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Module</th><th>In this prototype</th><th>In the production design</th></tr></thead>
+      <tbody>
+        ${scopeTable.map(s=>`
+          <tr>
+            <td style="font-weight:500;">${s.module}</td>
+            <td style="color:var(--muted);">${s.demo}</td>
+            <td style="color:var(--muted);">${s.prod}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="section-title">Why scoped this way</h2>
+  <div class="card">
+    <div style="font-size:12.5px; color:var(--muted); line-height:1.7;">
+      Automotive cybersecurity governance tooling lives or dies on whether the workflow actually matches how a security/compliance engineer thinks — traceability from a supplier all the way to a fielded vehicle, evidence tied directly to a clause, risk that's visible at a glance. That's the part worth validating first, in a UI a reviewer can click through in minutes. The FastAPI/PostgreSQL/Neo4j/Docker backend and a real LangChain-backed assistant are the natural next build phase once the workflow is proven — not because they're hard, but because they're only worth building against a validated data model and screen flow.
+    </div>
+  </div>
+  `;
+}
+
+/* ---------------------------- GLOBAL SEARCH ---------------------------- */
+function buildSearchIndex(){
+  const idx = [];
+  fleet.forEach(f=> idx.push({type:'Vehicle', title:f.vin, sub:`${f.model} · ${f.ecu}`, goto:'fleet'}));
+  suppliers.forEach(s=> idx.push({type:'Supplier', title:s.name, sub:s.cat, goto:'suppliers'}));
+  firmware.forEach(f=> idx.push({type:'Firmware', title:f.id, sub:`${f.ecu} · ${f.ver}`, goto:'firmware'}));
+  vulns.forEach(v=> idx.push({type:'Vulnerability', title:v.id, sub:`${v.cve} · ${v.comp}`, goto:'vulns'}));
+  evidence.forEach(e=> idx.push({type:'Evidence', title:e.name, sub:e.linked, goto:'evidence'}));
+  return idx;
+}
+const searchIndex = buildSearchIndex();
+function initGlobalSearch(){
+  const input = document.getElementById('globalSearch');
+  const results = document.getElementById('gsearchResults');
+  if(!input) return;
+  function draw(q){
+    if(!q){ results.classList.remove('open'); results.innerHTML=''; return; }
+    const ql = q.toLowerCase();
+    const matches = searchIndex.filter(i => (i.title+i.sub).toLowerCase().includes(ql)).slice(0,10);
+    results.innerHTML = matches.length ? matches.map(m=>`
+      <div class="gsearch-item" data-goto="${m.goto}">
+        <span class="gsearch-type">${m.type}</span>
+        <div class="gsearch-text"><div class="gsearch-title">${m.title}</div><div class="gsearch-sub">${m.sub}</div></div>
+      </div>`).join('') : `<div class="gsearch-empty">No matches for "${q}"</div>`;
+    results.classList.add('open');
+    results.querySelectorAll('.gsearch-item').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        active = el.dataset.goto; renderNav(); renderContent();
+        results.classList.remove('open'); input.value=''; input.blur();
+      });
+    });
+  }
+  input.addEventListener('input', e=> draw(e.target.value.trim()));
+  input.addEventListener('focus', e=> { if(e.target.value.trim()) draw(e.target.value.trim()); });
+  document.addEventListener('click', e=>{ if(!e.target.closest('.gsearch-wrap')) results.classList.remove('open'); });
+  document.addEventListener('keydown', e=>{
+    if(e.key==='/' && document.activeElement !== input){ e.preventDefault(); input.focus(); }
+    if(e.key==='Escape'){ results.classList.remove('open'); input.blur(); }
+  });
+}
+
+/* ---------------------------- INIT ---------------------------- */
+renderNav();
+renderContent();
+initGlobalSearch();
+</script>
+</body>
+</html>
